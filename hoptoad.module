@@ -23,27 +23,51 @@ function hoptoad_init() {
 }
 
 /**
+ * Implementation of hook_cron().
+ */
+function hoptoad_cron() {
+  $hoptoad = hoptoad_load_class();
+
+  // Get a few of the old reports and shove 'em up to Hoptoad
+  $reports = db_query_range(
+    "SELECT * FROM {hoptoad_queue} ORDER BY id ASC",
+    0,
+    variable_get('hoptoad_queue_limit', 30)
+  );
+  while ($report = db_fetch_object($reports)) {
+    $report = $report->report;
+    call_user_func_array(array($hoptoad, 'notify'), $report);
+
+    // Delete the report from database
+    db_query("DELETE FROM {hoptoad_queue} WHERE id = %d", $report->id);
+  }
+}
+
+/**
  * Load Drupal Hoptoad
  *
  * @param $path
  *   Path to the Hoptoad class
- * @return void
+ * @return hoptoad
  */
-function hoptoad_load_class($path) {
-  static $loaded;
+function hoptoad_load_class($path = '') {
+  static $hoptoad;
 
-  if (!isset($loaded) && file_exists($path)) {
+  if (empty($path) && isset($hoptoad)) {
+    return $hoptoad;
+  }
+  else if (!isset($hoptoad) && file_exists($path)) {
     require_once($path);
     require_once(drupal_get_path('module', 'hoptoad') . '/DrupalHoptoad.php');
 
-    // Instantiate DrupalHoptoad
-    Services_Hoptoad::installHandlers(
+    // Create new hoptoadz
+    $hoptoad = new DrupalHoptoad(
       variable_get('hoptoad_api_key', ''),
       variable_get('hoptoad_environment', 'production'),
-      variable_get('hoptoad_client', 'curl'),
-      'DrupalHoptoad'
+      variable_get('hoptoad_client', 'curl')
     );
 
-    $loaded = TRUE;
+    // Register ourselves as the error handler
+    $hoptoad->installNotifierHandlers();
   }
 }

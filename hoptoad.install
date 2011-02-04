@@ -1,6 +1,28 @@
 <?php
 
 /**
+ * Implementation of hook_schema().
+ */
+function hoptoad_schema() {
+  return array(
+    'hoptoad_queue' => array(
+      'description'   => t('Queue table for error reports.'),
+      'fields'        => array(
+        'id'            => array(
+          'type'          => 'serial',
+          'unsigned'      => TRUE,
+          'not null'      => TRUE,
+        ),
+        'report'        => array(
+          'type'          => 'text',
+          'not null'      => TRUE,
+        ),
+      ),
+    ),
+  );
+}
+
+/**
  * Implementation of hook_install().
  */
 function hoptoad_install() {
@@ -10,4 +32,13 @@ function hoptoad_install() {
     "UPDATE {system} SET weight=%d WHERE type='module' AND name='hoptoad'",
     $minWeight - 10
   );
+
+  drupal_install_schema('hoptoad');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function hoptoad_uninstall() {
+  drupal_uninstall_schema('hoptoad');
 }

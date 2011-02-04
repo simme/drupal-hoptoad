@@ -12,14 +12,26 @@ class DrupalHoptoad extends Services_Hoptoad
   /**
    * First notify, then call Drupals error handler.
    *
-   * @param string $code 
-   * @param string $message 
-   * @param string $file 
-   * @param string $line 
+   * @param string $code
+   * @param string $message
+   * @param string $file
+   * @param string $line
    * @return void
    */
   public function errorHandler($code, $message, $file, $line, $context) {
-    parent::errorHandler($code, $message, $file, $line);
+    // Report error directly instead of putting it in a queue, useful for
+    // staging and development environments or when cron is not available.
+    if (variable_get('hoptoad_report_directly', FALSE)) {
+      parent::errorHandler($code, $message, $file, $line);
+    }
+    else {
+      // Add the error report to the queue
+      $args = func_get_args();
+      $args[] = debug_backtrace();
+      db_query("INSERT INTO {hoptoad_queue} VALUES(NULL, %s)", json_encode($args));
+    }
+
+    // Call Drupals built in error handler to allow dblogging 'n stuff
     drupal_error_handler($code, $message, $file, $line, $context);
   }
 }
