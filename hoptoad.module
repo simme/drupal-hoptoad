@@ -32,7 +32,7 @@ function hoptoad_cron() {
   $reports = db_query_range(
     "SELECT * FROM {hoptoad_queue} ORDER BY id ASC",
     0,
-    variable_get('hoptoad_queue_limit', 30)
+    variable_get('hoptoad_cron_limit', 30)
   );
   while ($report = db_fetch_object($reports)) {
     $report = $report->report;

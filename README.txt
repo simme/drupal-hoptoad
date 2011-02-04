@@ -52,6 +52,19 @@ into your settings.php file. The only one you need to set is hoptoad_api_key.
 
   Defaults to 'curl'.
 
+* hoptoad_report_directly (optional)
+  If this is set to TRUE all error reports will be sent to Hoptoad the moment
+  an error is encountered. If left out (or set to FALSE) all error reports
+  will be put into a queue and sent to Hoptoad on cron.
+
+  This is to avoid slow loading for regular users when an error has to be sent
+  to Hoptoad.
+
+* hoptoad_cron_limit (optional)
+  The number of reports to sent to Hoptoad on each cron. Hoptoad client has a
+  timeout of two seonds. So maximum execution time will be limit times two.
+
+  Defaults to 30.
 
 So in your settings.php file you need to enter:
   $conf['hoptoad_api_key'] = 'your_api_key_here';
