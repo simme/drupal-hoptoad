@@ -43,5 +43,7 @@ function hoptoad_load_class($path) {
       variable_get('hoptoad_client', 'curl'),
       'DrupalHoptoad'
     );
+
+    $loaded = TRUE;
   }
 }
