@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * Implementation of hook_boo().
+ *
+ * If 'hoptoad_path' is set in settings.php we load the library on boot.
+ * 'hoptoad_path' __MUST__ include a trailing slash.
+ */
+function hoptoad_boot() {
+  $path = variable_get('hoptoad_path', FALSE);
+  $path = $path ? $path . 'Services/Hoptoad.php' : FALSE;
+  if ($path) {
+    hoptoad_load_class($path);
+  }
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function hoptoad_init() {
+  $path = libraries_get_path('php-hoptoad-notifier') . '/Services/Hoptoad.php';
+  hoptoad_load_class($path);
+}
+
+/**
+ * Load Drupal Hoptoad
+ *
+ * @param $path
+ *   Path to the Hoptoad class
+ * @return void
+ */
+function hoptoad_load_class($path) {
+  static $loaded;
+
+  if (!isset($loaded) && file_exists($path)) {
+    require_once($path);
+    require_once(drupal_get_path('module', 'hoptoad') . '/DrupalHoptoad.php');
+
+    // Instantiate DrupalHoptoad
+    Services_Hoptoad::installHandlers(
+      variable_get('hoptoad_api_key', ''),
+      variable_get('hoptoad_environment', 'production'),
+      variable_get('hoptoad_client', 'curl'),
+      'DrupalHoptoad'
+    );
+  }
+}

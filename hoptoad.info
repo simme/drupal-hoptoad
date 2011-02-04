@@ -1,0 +1,6 @@
+name = Hoptoad
+description = Enables you to send error reports to hoptoadapp.com
+version = 0.1-dev
+core = 6.x
+
+dependencies[] = libraries

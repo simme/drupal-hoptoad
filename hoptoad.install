@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function hoptoad_install() {
+  // Make sure we run first
+  $minWeight = db_result(db_query("SELECT MIN(weight) FROM {system}"));
+  db_query(
+    "UPDATE {system} SET weight=%d WHERE type='module' AND name='hoptoad'",
+    $minWeight - 10
+  );
+}
