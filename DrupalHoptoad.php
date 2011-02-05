@@ -25,10 +25,25 @@ class DrupalHoptoad extends Services_Hoptoad
       parent::errorHandler($code, $message, $file, $line);
     }
     else {
-      // Add the error report to the queue
-      $args = func_get_args();
+      // Remove $context, it sometimes contains resources
+      // json_encode can't handle resources
+      $args   = func_get_args();
+      array_pop($args);
       $args[] = debug_backtrace();
-      db_query("INSERT INTO {hoptoad_queue} VALUES(NULL, %s)", json_encode($args));
+
+      // Add the error report to the queue
+      // So, for now I'm supressing errors from json_encode. It seems to be
+      // a bug in PHP which makes json_encode throw warnings about recursion
+      // when serializing an object with hidden properties or classes
+      // implementing the Iterator interface.
+      //
+      // So, either we iterate through all in $args and convert 'em to arrays.
+      // Or we suppress json_encode's error warning. I actually don't know
+      // what is slower.
+      db_query(
+        "INSERT INTO {hoptoad_queue} VALUES(NULL, '%s')",
+        @json_encode($args)
+      );
     }
 
     // Call Drupals built in error handler to allow dblogging 'n stuff
