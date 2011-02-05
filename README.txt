@@ -1,7 +1,7 @@
 Hoptoad for Drupal
 -----------------------------------------------------------------------------
 Hoptoad for Drupal enables you to send you sites error messages and exceptions
-to hoptoadapp.org
+to hoptoadapp.com
 
 
 Installation:
