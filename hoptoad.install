@@ -10,14 +10,19 @@ function hoptoad_schema() {
       'fields'        => array(
         'id'            => array(
           'type'          => 'serial',
+          'size'          => 'medium',
           'unsigned'      => TRUE,
           'not null'      => TRUE,
         ),
         'report'        => array(
           'type'          => 'text',
           'not null'      => TRUE,
+          'size'          => 'normal',
+          'length'        => 8192,
         ),
       ),
+      'primary key'   => array('id'),
+      'indexes'       => array('id' => array('id')),
     ),
   );
 }
